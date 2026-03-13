@@ -1,0 +1,23 @@
+service: hms-email-service
+
+provider:
+  name: aws
+  runtime: python3.9
+  environment:
+    SMTP_HOST: ${env:SMTP_HOST}
+    SMTP_PORT: ${env:SMTP_PORT}
+    SMTP_USER: ${env:SMTP_USER}
+    SMTP_PASSWORD: ${env:SMTP_PASSWORD}
+    FROM_EMAIL: ${env:FROM_EMAIL}
+
+plugins:
+  - serverless-offline
+
+functions:
+  sendEmail:
+    handler: handler.lambda_handler
+    events:
+      - http:
+          path: send-email
+          method: post
+          cors: true
