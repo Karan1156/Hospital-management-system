@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - HMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create New Account</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="registrationForm" action="{% url 'register' %}" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- User Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">I am registering as:</label>
+                            <div class="row">
+                                {% for radio in user_form.user_type %}
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Account Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Account Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.username.id_for_label }}" class="form-label">Username</label>
+                                        {{ user_form.username }}
+                                        {% if user_form.username.errors %}
+                                            <div class="text-danger small">{{ user_form.username.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="text-danger small">{{ user_form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        {{ user_form.first_name }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        {{ user_form.last_name }}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.password1.id_for_label }}" class="form-label">Password</label>
+                                        {{ user_form.password1 }}
+                                        <small class="text-muted">At least 8 characters</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ user_form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                                        {{ user_form.password2 }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Doctor Specific Fields -->
+                        <div id="doctorFields" style="display: none;">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Doctor Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ doctor_form.specialization.id_for_label }}" class="form-label">Specialization</label>
+                                            {{ doctor_form.specialization }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ doctor_form.license_number.id_for_label }}" class="form-label">License Number</label>
+                                            {{ doctor_form.license_number }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ doctor_form.experience_years.id_for_label }}" class="form-label">Years of Experience</label>
+                                            {{ doctor_form.experience_years }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ doctor_form.consultation_fee.id_for_label }}" class="form-label">Consultation Fee ($)</label>
+                                            {{ doctor_form.consultation_fee }}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ doctor_form.qualification.id_for_label }}" class="form-label">Qualification</label>
+                                        {{ doctor_form.qualification }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ doctor_form.bio.id_for_label }}" class="form-label">Bio</label>
+                                        {{ doctor_form.bio }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patient Specific Fields -->
+                        <div id="patientFields" style="display: none;">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Patient Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ patient_form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                            {{ patient_form.date_of_birth }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ patient_form.blood_group.id_for_label }}" class="form-label">Blood Group</label>
+                                            {{ patient_form.blood_group }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ patient_form.emergency_contact.id_for_label }}" class="form-label">Emergency Contact</label>
+                                            {{ patient_form.emergency_contact }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ patient_form.emergency_contact_name.id_for_label }}" class="form-label">Contact Name</label>
+                                            {{ patient_form.emergency_contact_name }}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ patient_form.address.id_for_label }}" class="form-label">Address</label>
+                                        {{ patient_form.address }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="{{ patient_form.medical_history.id_for_label }}" class="form-label">Medical History</label>
+                                        {{ patient_form.medical_history }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="registerBtn">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userTypeRadios = document.querySelectorAll('input[name="user_type"]');
+        const doctorFields = document.getElementById('doctorFields');
+        const patientFields = document.getElementById('patientFields');
+        const form = document.getElementById('registrationForm');
+        
+        // Get all doctor and patient fields
+        const doctorInputs = doctorFields.querySelectorAll('input, select, textarea');
+        const patientInputs = patientFields.querySelectorAll('input, select, textarea');
+        
+        function setRequiredFields(showDoctor, showPatient) {
+            // Handle doctor fields
+            doctorInputs.forEach(field => {
+                if (showDoctor) {
+                    field.setAttribute('required', 'required');
+                    field.disabled = false;
+                } else {
+                    field.removeAttribute('required');
+                    field.disabled = true;
+                }
+            });
+            
+            // Handle patient fields
+            patientInputs.forEach(field => {
+                if (showPatient) {
+                    field.setAttribute('required', 'required');
+                    field.disabled = false;
+                } else {
+                    field.removeAttribute('required');
+                    field.disabled = true;
+                }
+            });
+        }
+        
+        function toggleFields() {
+            const selectedValue = document.querySelector('input[name="user_type"]:checked')?.value;
+            
+            if (selectedValue === 'doctor') {
+                doctorFields.style.display = 'block';
+                patientFields.style.display = 'none';
+                setRequiredFields(true, false);
+            } else if (selectedValue === 'patient') {
+                doctorFields.style.display = 'none';
+                patientFields.style.display = 'block';
+                setRequiredFields(false, true);
+            } else {
+                doctorFields.style.display = 'none';
+                patientFields.style.display = 'none';
+                setRequiredFields(false, false);
+            }
+        }
+        
+        userTypeRadios.forEach(radio => {
+            radio.addEventListener('change', toggleFields);
+        });
+        
+        // Initial toggle
+        toggleFields();
+        
+        // Prevent form submission if no user type selected
+        form.addEventListener('submit', function(e) {
+            const selectedType = document.querySelector('input[name="user_type"]:checked');
+            if (!selectedType) {
+                e.preventDefault();
+                alert('Please select whether you are registering as a Doctor or Patient');
+            }
+        });
+    });
+</script>
+{% endblock %}

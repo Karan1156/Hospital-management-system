@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard - HMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-user me-2"></i>Welcome, {{ user.get_full_name }}</h2>
+            <p class="text-muted">Patient Dashboard</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Quick Actions & Profile -->
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'book_appointment' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Book New Appointment
+                        </a>
+                        <a href="{% url 'patient_profile' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-edit me-2"></i>Update Profile
+                        </a>
+                        <a href="{% url 'patient_appointments' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-history me-2"></i>View Appointment History
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Profile Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% if patient_profile %}
+                    <p><strong>Blood Group:</strong> {{ patient_profile.blood_group|default:"Not specified" }}</p>
+                    <p><strong>Emergency Contact:</strong> {{ patient_profile.emergency_contact }}</p>
+                    <p><strong>Date of Birth:</strong> {{ patient_profile.date_of_birth }}</p>
+                    <p><strong>Age:</strong>
+                        {% with today=now date=patient_profile.date_of_birth %}
+                        {{ today.year|add:"-"|add:date.year }} years
+                        {% endwith %}
+                    </p>
+                    {% else %}
+                    <p class="text-muted">Profile information not available.</p>
+                    <a href="{% url 'patient_profile' %}" class="btn btn-sm btn-outline-primary">Complete Profile</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Google Calendar Integration -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fab fa-google me-2"></i>Google Calendar</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.doctor_profile.google_calendar_token or user.patient_profile.google_calendar_token %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Calendar Connected
+                    </div>
+                    <a href="/calendar/disconnect/" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-unlink"></i> Disconnect
+                    </a>
+                    {% else %}
+                    <p class="text-muted">Connect to automatically add appointments to your calendar.</p>
+                    <a href="/calendar/connect/" class="btn btn-outline-primary btn-sm">
+                        <i class="fab fa-google"></i> Connect Google Calendar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Right Column - Appointments & Doctors -->
+            <div class="col-md-8">
+                <!-- Upcoming Appointments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Upcoming Appointments</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_appointments %}
+                        {% for booking in upcoming_appointments %}
+                        <div class="card mb-2 border">
+                            <div class="card-body py-2">
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
+                                        <h6 class="mb-1">Dr. {{ booking.slot.doctor.user.get_full_name }}</h6>
+                                        <p class="mb-1 small">
+                                            <i class="fas fa-calendar me-2"></i>{{ booking.slot.date }}
+                                            <i class="fas fa-clock ms-3 me-2"></i>{{ booking.slot.start_time|time:"H:i"
+                                            }} - {{ booking.slot.end_time|time:"H:i" }}
+                                        </p>
+                                        <p class="mb-0 text-muted small">{{ booking.slot.doctor.specialization }}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-success">{{ booking.status|title }}</span>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <a href="{% url 'cancel_booking' booking.id %}"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% if booking.symptoms %}
+                                <div class="mt-2 small text-muted">
+                                    <i class="fas fa-notes-medical me-1"></i> {{ booking.symptoms }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-end mt-2">
+                            <a href="{% url 'patient_appointments' %}" class="btn btn-outline-primary btn-sm">
+                                View All Appointments <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No upcoming appointments.</p>
+                        <a href="{% url 'book_appointment' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Your First Appointment
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Available Doctors -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Available Doctors</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if doctors %}
+                        <div class="row">
+                            {% for doctor in doctors|slice:":4" %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Dr. {{ doctor.user.get_full_name }}</h6>
+                                        <p class="mb-1"><strong>{{ doctor.specialization }}</strong></p>
+                                        <p class="mb-1 small">
+                                            <i class="fas fa-star text-warning"></i> {{ doctor.experience_years }} years
+                                            exp.
+                                        </p>
+                                        <p class="mb-2 small">
+                                            <i class="fas fa-rupee-sign"></i> ${{ doctor.consultation_fee }}
+                                        </p>
+                                        <a href="{% url 'book_appointment' %}?doctor={{ doctor.id }}"
+                                            class="btn btn-sm btn-outline-primary w-100">
+                                            Book Appointment
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if doctors.count > 4 %}
+                        <div class="text-center mt-2">
+                            <a href="#" class="btn btn-link">View All Doctors ({{ doctors.count }})</a>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <p class="text-muted">No doctors available at the moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

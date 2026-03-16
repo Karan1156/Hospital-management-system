@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}My Appointments - HMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-calendar-alt me-2"></i>My Appointments</h2>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="row">
+        <div class="col-md-12">
+            {% if appointments %}
+                {% for booking in appointments %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5>Dr. {{ booking.slot.doctor.user.get_full_name }}</h5>
+                                    <p class="mb-2">{{ booking.slot.doctor.specialization }}</p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar me-2"></i>{{ booking.slot.date }}
+                                        <i class="fas fa-clock ms-3 me-2"></i>{{ booking.slot.start_time }} - {{ booking.slot.end_time }}
+                                    </p>
+                                    {% if booking.symptoms %}
+                                        <p class="mb-0"><strong>Symptoms:</strong> {{ booking.symptoms }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge 
+                                        {% if booking.status == 'confirmed' %}bg-success
+                                        {% elif booking.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %} mb-2">
+                                        {{ booking.status|title }}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">Booked: {{ booking.created_at|date }}</small>
+                                    
+                                    {% if booking.status == 'confirmed' %}
+                                        <br>
+                                        <a href="{% url 'cancel_booking' booking.id %}" 
+                                           class="btn btn-sm btn-danger mt-2"
+                                           onclick="return confirm('Cancel this appointment?')">
+                                            Cancel
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No appointments found.
+                    <a href="{% url 'book_appointment' %}" class="alert-link">Book an appointment</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
