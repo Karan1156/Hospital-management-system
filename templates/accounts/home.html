@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to HMS{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto text-center">
+            <h1 class="display-4 mb-4">Welcome to Hospital Management System</h1>
+            <p class="lead mb-5">Book appointments with doctors easily and manage your healthcare efficiently.</p>
+            
+            {% if not user.is_authenticated %}
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-md fa-4x text-primary mb-3"></i>
+                                <h3>Are you a Doctor?</h3>
+                                <p>Register as a doctor to manage your availability and appointments.</p>
+                                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Register as Doctor</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user fa-4x text-success mb-3"></i>
+                                <h3>Are you a Patient?</h3>
+                                <p>Register as a patient to book appointments with doctors.</p>
+                                <a href="{% url 'register' %}" class="btn btn-success btn-lg">Register as Patient</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You are already logged in. <a href="{% url 'dashboard' %}">Go to Dashboard</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
